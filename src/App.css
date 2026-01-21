@@ -166,6 +166,17 @@
   color: #59637a;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .results {
   display: flex;
   flex-direction: column;
@@ -230,6 +241,40 @@
   padding: 10px 14px;
   font-size: 0.9rem;
   font-family: 'JetBrains Mono', 'Segoe UI', monospace;
+  font-variant-ligatures: none;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.password-field input:-webkit-autofill,
+.password-field input:-webkit-autofill:hover,
+.password-field input:-webkit-autofill:focus,
+.output-lock-form input:-webkit-autofill {
+  font-family: 'JetBrains Mono', 'Segoe UI', monospace;
+  font-size: 0.9rem;
+  font-variant-ligatures: none;
+  -webkit-text-fill-color: #111318;
+  transition: background-color 9999s ease-out;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #111318;
 }
 
 .output-lock-actions {

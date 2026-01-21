@@ -59,6 +59,7 @@ function App() {
   const [outputLocked, setOutputLocked] = useState(true)
   const [passwordInput, setPasswordInput] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [exportUserName, setExportUserName] = useState('')
   const [showExportPrompt, setShowExportPrompt] = useState(false)
   const [exportNameInput, setExportNameInput] = useState('')
@@ -1491,14 +1492,76 @@ function App() {
                   <p className="meta">
                     Vul het wachtwoord in om de resultaten te bekijken.
                   </p>
-                  <form className="output-lock-form" onSubmit={handlePasswordSubmit}>
+                  <form className="output-lock-form" onSubmit={handlePasswordSubmit} autoComplete="on">
                     <input
-                      type="password"
-                      value={passwordInput}
-                      onChange={(event) => setPasswordInput(event.target.value)}
-                      placeholder="Wachtwoord"
-                      autoComplete="current-password"
+                      type="text"
+                      name="username"
+                      autoComplete="username"
+                      className="sr-only"
+                      tabIndex={-1}
+                      aria-hidden="true"
                     />
+                    <div className="password-field">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        id="output-password"
+                        value={passwordInput}
+                        onChange={(event) => setPasswordInput(event.target.value)}
+                        placeholder="Wachtwoord"
+                        autoComplete="current-password"
+                      />
+                      <button
+                        className="password-toggle"
+                        type="button"
+                        aria-label={showPassword ? 'Verberg wachtwoord' : 'Toon wachtwoord'}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? (
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <path
+                              d="M4 6l16 12M2.5 12S6.5 5 12 5c2.5 0 4.8 1.5 6.6 3.3M9.5 9.5A3.5 3.5 0 0 1 12 8.5c1.9 0 3.5 1.6 3.5 3.5 0 .6-.2 1.2-.5 1.7M7.1 12.2A4.9 4.9 0 0 0 12 17c5.5 0 9.5-7 9.5-7a17.2 17.2 0 0 0-3.1-3.6"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <path
+                              d="M2.5 12S6.5 5 12 5s9.5 7 9.5 7-4 7-9.5 7-9.5-7-9.5-7Z"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                     <div className="output-lock-actions">
                       <button className="primary" type="submit">
                         Ontgrendel
@@ -1582,12 +1645,29 @@ function App() {
                 event.stopPropagation()
               }}
             >
-              {tutorialItems.map((item) => (
+              {[...tutorialItems]
+                .sort((a, b) => {
+                  const order = [
+                    'input',
+                    'unlock',
+                    'output-cards',
+                    'toggle-row',
+                    'query',
+                    'output-section',
+                  ]
+                  const indexA = order.indexOf(a.id)
+                  const indexB = order.indexOf(b.id)
+                  if (indexA === -1 && indexB === -1) return 0
+                  if (indexA === -1) return 1
+                  if (indexB === -1) return -1
+                  return indexA - indexB
+                })
+                .map((item) => (
                 <div key={item.id} className="tutorial-card tutorial-card-compact">
                   <h4>{item.title}</h4>
                   <p>{item.body}</p>
                 </div>
-              ))}
+                ))}
             </div>
           ) : (
             tutorialItems.map((item) => (
