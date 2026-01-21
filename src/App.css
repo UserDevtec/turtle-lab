@@ -290,6 +290,75 @@
   justify-content: center;
 }
 
+.tutorial-fab {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #111318;
+  color: #f7f3ee;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 16px 30px rgba(17, 19, 24, 0.25);
+  z-index: 70;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tutorial-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(17, 19, 24, 0.28);
+}
+
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(245, 243, 239, 0.38);
+  backdrop-filter: blur(2px);
+  z-index: 60;
+}
+
+.tutorial-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 65;
+}
+
+.tutorial-spot {
+  position: fixed;
+  border-radius: 16px;
+  border: 2px solid #111318;
+  box-shadow: 0 0 0 9999px rgba(245, 243, 239, 0.08);
+  pointer-events: none;
+}
+
+.tutorial-card {
+  position: fixed;
+  width: 280px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #e1e4ee;
+  box-shadow: 0 16px 30px rgba(31, 39, 54, 0.12);
+  z-index: 61;
+}
+
+.tutorial-card h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: #111318;
+}
+
+.tutorial-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #3c4453;
+}
+
 .output-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -396,6 +465,8 @@
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+  justify-content: flex-start;
+  align-self: flex-start;
 }
 
 .toggle-panel {

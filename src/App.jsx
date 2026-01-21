@@ -63,9 +63,18 @@ function App() {
   const [showExportPrompt, setShowExportPrompt] = useState(false)
   const [exportNameInput, setExportNameInput] = useState('')
   const [exportNameError, setExportNameError] = useState('')
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [tutorialItems, setTutorialItems] = useState([])
   const queryTimerRef = useRef(null)
   const highlightRef = useRef(null)
   const unlockAttemptRef = useRef(0)
+  const tutorialRafRef = useRef(null)
+  const inputPanelRef = useRef(null)
+  const outputLockCardRef = useRef(null)
+  const queryControlsRef = useRef(null)
+  const outputCardsRef = useRef(null)
+  const outputSectionRef = useRef(null)
+  const toggleRowRef = useRef(null)
 
   useEffect(() => {
     if (isQuerying) {
@@ -89,6 +98,162 @@ function App() {
     }
     return undefined
   }, [isQuerying])
+
+  useEffect(() => {
+    if (outputLocked && showTutorial) {
+      setShowTutorial(false)
+    }
+  }, [outputLocked, showTutorial])
+
+  useEffect(() => {
+    if (!showTutorial) return
+    const buildTutorialItems = () => {
+      const padding = 16
+      const cardWidth = 280
+      const cardGap = 14
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+      const withRect = (ref) => {
+        if (!ref.current) return null
+        return ref.current.getBoundingClientRect()
+      }
+      const placeCard = (rect, preferLeft = false) => {
+        const roomRight = window.innerWidth - rect.right
+        const roomLeft = rect.left
+        const canPlaceRight = roomRight >= cardWidth + cardGap
+        const canPlaceLeft = roomLeft >= cardWidth + cardGap
+        let left = clamp(rect.left, padding, window.innerWidth - cardWidth - padding)
+        if (preferLeft) {
+          if (canPlaceLeft) {
+            left = rect.left - cardWidth - cardGap
+          } else if (canPlaceRight) {
+            left = rect.right + cardGap
+          }
+        } else if (canPlaceRight) {
+          left = rect.right + cardGap
+        } else if (canPlaceLeft) {
+          left = rect.left - cardWidth - cardGap
+        }
+        const top = clamp(rect.top, padding, window.innerHeight - 140)
+        return { left, top }
+      }
+      const nextItems = []
+      const inputRect = withRect(inputPanelRef)
+      if (inputRect) {
+        nextItems.push({
+          id: 'input',
+          title: 'Stap 1: Input',
+          body: 'Upload of sleep een .ttl bestand om triples te laden.',
+          spot: {
+            top: inputRect.top,
+            left: inputRect.left,
+            width: inputRect.width,
+            height: inputRect.height,
+          },
+          card: placeCard(inputRect),
+        })
+      }
+      const lockRect = withRect(outputLockCardRef)
+      if (lockRect) {
+        nextItems.push({
+          id: 'unlock',
+          title: 'Stap 2: Ontgrendel output',
+          body: 'Vul het wachtwoord in en klik op "Ontgrendel".',
+          spot: {
+            top: lockRect.top,
+            left: lockRect.left,
+            width: lockRect.width,
+            height: lockRect.height,
+          },
+          card: placeCard(lockRect),
+        })
+      }
+      const queryRect = withRect(queryControlsRef)
+      if (queryRect) {
+        nextItems.push({
+          id: 'query',
+          title: 'Stap 4: Query en export',
+          body: 'Klik "Run query" en daarna "Download Excel". Je naam wordt gevraagd.',
+          spot: {
+            top: queryRect.top,
+            left: queryRect.left,
+            width: queryRect.width,
+            height: queryRect.height,
+          },
+          card: placeCard(queryRect),
+        })
+      }
+      const cardsRect = withRect(outputCardsRef)
+      if (cardsRect) {
+        nextItems.push({
+          id: 'output-cards',
+          title: 'Stap 2: Output kaarten',
+          body: 'Bekijk Triples, Query resultaten en Uniek (notation).',
+          spot: {
+            top: cardsRect.top,
+            left: cardsRect.left,
+            width: cardsRect.width,
+            height: cardsRect.height,
+          },
+          card: placeCard(cardsRect),
+        })
+      }
+      const outputSectionRect = withRect(outputSectionRef)
+      if (outputSectionRect) {
+        nextItems.push({
+          id: 'output-section',
+          title: 'Resultaten',
+          body: 'Hier zie je de query-uitvoer. Gebruik de zoekbalk om te filteren.',
+          spot: {
+            top: outputSectionRect.top,
+            left: outputSectionRect.left,
+            width: outputSectionRect.width,
+            height: outputSectionRect.height,
+          },
+          card: placeCard(outputSectionRect),
+        })
+      }
+      const toggleRowRect = withRect(toggleRowRef)
+      if (toggleRowRect) {
+        const left = clamp(
+          toggleRowRect.left - cardWidth - cardGap,
+          padding,
+          window.innerWidth - cardWidth - padding
+        )
+        nextItems.push({
+          id: 'toggle-row',
+          title: 'Stap 3: Toon panels',
+          body:
+            'Gebruik "Show query", "Show prefixes", "Show triples" en "Show log" om de panelen te openen.',
+          spot: {
+            top: toggleRowRect.top,
+            left: toggleRowRect.left,
+            width: toggleRowRect.width,
+            height: toggleRowRect.height,
+          },
+          card: { left, top: clamp(toggleRowRect.top, padding, window.innerHeight - 140) },
+        })
+      }
+      setTutorialItems(nextItems)
+    }
+    const scheduleUpdate = () => {
+      if (tutorialRafRef.current != null) return
+      tutorialRafRef.current = requestAnimationFrame(() => {
+        tutorialRafRef.current = null
+        buildTutorialItems()
+      })
+    }
+    scheduleUpdate()
+    window.addEventListener('resize', scheduleUpdate)
+    window.addEventListener('scroll', scheduleUpdate, true)
+    return () => {
+      window.removeEventListener('resize', scheduleUpdate)
+      window.removeEventListener('scroll', scheduleUpdate, true)
+      if (tutorialRafRef.current != null) {
+        cancelAnimationFrame(tutorialRafRef.current)
+        tutorialRafRef.current = null
+      }
+    }
+  }, [showTutorial])
 
   const addLog = (message, type = 'info') => {
     const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19)
@@ -985,7 +1150,7 @@ function App() {
           <div className="actions" />
         </header>
 
-        <section className="panel">
+        <section className="panel" ref={inputPanelRef}>
           <div className="panel-header">
             <h2>Input</h2>
           </div>
@@ -1010,9 +1175,9 @@ function App() {
 
         <section className="panel results">
           <div className={`output-lock ${outputLocked ? 'locked' : ''}`}>
-            <div className="output-lock-content">
-              <div className="panel-header">
-                <h2>Output</h2>
+                  <div className="output-lock-content">
+                    <div className="panel-header">
+                      <h2>Output</h2>
                 <div className="panel-actions">
                   {!outputLocked ? (
                     <button className="ghost" type="button" onClick={() => setOutputLocked(true)}>
@@ -1024,7 +1189,7 @@ function App() {
 
               {error ? <div className="error">Parse fout: {error}</div> : null}
 
-              <div className="output-cards">
+              <div className="output-cards" ref={outputCardsRef}>
                 <div className="stat-card">
                   <p className="stat-label">Triples</p>
                   <p className="stat-value">{triples.length}</p>
@@ -1048,7 +1213,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="toggle-row">
+              <div className="toggle-row" ref={toggleRowRef}>
                 <button
                   className="ghost toggle"
                   type="button"
@@ -1072,13 +1237,17 @@ function App() {
                 >
                   {showTriples ? 'Hide triples' : 'Show triples'}
                 </button>
-                <button className="ghost toggle" type="button" onClick={() => togglePanel('log')}>
+                <button
+                  className="ghost toggle"
+                  type="button"
+                  onClick={() => togglePanel('log')}
+                >
                   {showLog ? 'Hide log' : 'Show log'}
                 </button>
               </div>
               <div className={`toggle-panel query-panel ${showQuery ? 'open' : ''}`}>
                 <div className="query">
-                  <div className="query-controls">
+                  <div className="query-controls" ref={queryControlsRef}>
                     <label htmlFor="querySelect">Query</label>
                     <select
                       id="querySelect"
@@ -1151,7 +1320,7 @@ function App() {
                     ) : null}
                   </div>
                   {queryError ? <div className="error">Query fout: {queryError}</div> : null}
-                  <div className="output-section">
+                  <div className="output-section" ref={outputSectionRef}>
                     <div className="output-header">
                       <h3>{isOtlQuery ? 'Paths' : 'Query resultaat'}</h3>
                       <span className="meta">
@@ -1291,7 +1460,7 @@ function App() {
             </div>
             {outputLocked ? (
               <div className="output-lock-overlay">
-                <div className="output-lock-card">
+                <div className="output-lock-card" ref={outputLockCardRef}>
                   <p className="stat-label">Beveiligde output</p>
                   <h3>Output is vergrendeld</h3>
                   <p className="meta">
@@ -1350,6 +1519,55 @@ function App() {
             </form>
             {exportNameError ? <div className="error">{exportNameError}</div> : null}
           </div>
+        </div>
+      ) : null}
+      <button
+        className="tutorial-fab"
+        type="button"
+        onClick={() => {
+          setShowTutorial(true)
+        }}
+      >
+        ?
+      </button>
+      {showTutorial ? (
+        <div
+          className="tutorial-overlay"
+          onClick={() => {
+            setShowTutorial(false)
+          }}
+        >
+          <button
+            className="tutorial-close ghost"
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              setShowTutorial(false)
+            }}
+          >
+            Sluiten
+          </button>
+          {tutorialItems.map((item) => (
+            <div key={item.id}>
+              <div
+                className="tutorial-spot"
+                style={{
+                  top: `${item.spot.top}px`,
+                  left: `${item.spot.left}px`,
+                  width: `${item.spot.width}px`,
+                  height: `${item.spot.height}px`,
+                }}
+              />
+              <div
+                className="tutorial-card"
+                style={{ top: `${item.card.top}px`, left: `${item.card.left}px` }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <h4>{item.title}</h4>
+                <p>{item.body}</p>
+              </div>
+            </div>
+          ))}
         </div>
       ) : null}
     </>
