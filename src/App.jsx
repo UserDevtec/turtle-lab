@@ -65,6 +65,7 @@ function App() {
   const [exportNameError, setExportNameError] = useState('')
   const [showTutorial, setShowTutorial] = useState(false)
   const [tutorialItems, setTutorialItems] = useState([])
+  const [isTutorialCompact, setIsTutorialCompact] = useState(false)
   const queryTimerRef = useRef(null)
   const highlightRef = useRef(null)
   const unlockAttemptRef = useRef(0)
@@ -108,6 +109,8 @@ function App() {
   useEffect(() => {
     if (!showTutorial) return
     const buildTutorialItems = () => {
+      const compact = window.innerWidth <= 1024 || window.innerHeight <= 720
+      setIsTutorialCompact(compact)
       const padding = 16
       const cardWidth = 280
       const cardGap = 14
@@ -125,13 +128,15 @@ function App() {
         if (preferLeft) {
           if (canPlaceLeft) {
             left = rect.left - cardWidth - cardGap
-          } else if (canPlaceRight) {
-            left = rect.right + cardGap
+          } else {
+            left = clamp(rect.left + cardGap, padding, window.innerWidth - cardWidth - padding)
           }
-        } else if (canPlaceRight) {
-          left = rect.right + cardGap
-        } else if (canPlaceLeft) {
-          left = rect.left - cardWidth - cardGap
+        } else {
+          if (canPlaceRight) {
+            left = rect.right + cardGap
+          } else {
+            left = clamp(rect.right - cardWidth - cardGap, padding, window.innerWidth - cardWidth - padding)
+          }
         }
         const top = clamp(rect.top, padding, window.innerHeight - 140)
         return { left, top }
@@ -143,13 +148,17 @@ function App() {
           id: 'input',
           title: 'Stap 1: Input',
           body: 'Upload of sleep een .ttl bestand om triples te laden.',
-          spot: {
-            top: inputRect.top,
-            left: inputRect.left,
-            width: inputRect.width,
-            height: inputRect.height,
-          },
-          card: placeCard(inputRect),
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: inputRect.top,
+                  left: inputRect.left,
+                  width: inputRect.width,
+                  height: inputRect.height,
+                },
+                card: placeCard(inputRect),
+              }),
         })
       }
       const lockRect = withRect(outputLockCardRef)
@@ -158,13 +167,17 @@ function App() {
           id: 'unlock',
           title: 'Stap 2: Ontgrendel output',
           body: 'Vul het wachtwoord in en klik op "Ontgrendel".',
-          spot: {
-            top: lockRect.top,
-            left: lockRect.left,
-            width: lockRect.width,
-            height: lockRect.height,
-          },
-          card: placeCard(lockRect),
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: lockRect.top,
+                  left: lockRect.left,
+                  width: lockRect.width,
+                  height: lockRect.height,
+                },
+                card: placeCard(lockRect),
+              }),
         })
       }
       const queryRect = withRect(queryControlsRef)
@@ -173,13 +186,17 @@ function App() {
           id: 'query',
           title: 'Stap 4: Query en export',
           body: 'Klik "Run query" en daarna "Download Excel". Je naam wordt gevraagd.',
-          spot: {
-            top: queryRect.top,
-            left: queryRect.left,
-            width: queryRect.width,
-            height: queryRect.height,
-          },
-          card: placeCard(queryRect),
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: queryRect.top,
+                  left: queryRect.left,
+                  width: queryRect.width,
+                  height: queryRect.height,
+                },
+                card: placeCard(queryRect),
+              }),
         })
       }
       const cardsRect = withRect(outputCardsRef)
@@ -188,13 +205,17 @@ function App() {
           id: 'output-cards',
           title: 'Stap 2: Output kaarten',
           body: 'Bekijk Triples, Query resultaten en Uniek (notation).',
-          spot: {
-            top: cardsRect.top,
-            left: cardsRect.left,
-            width: cardsRect.width,
-            height: cardsRect.height,
-          },
-          card: placeCard(cardsRect),
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: cardsRect.top,
+                  left: cardsRect.left,
+                  width: cardsRect.width,
+                  height: cardsRect.height,
+                },
+                card: placeCard(cardsRect),
+              }),
         })
       }
       const outputSectionRect = withRect(outputSectionRef)
@@ -203,34 +224,44 @@ function App() {
           id: 'output-section',
           title: 'Resultaten',
           body: 'Hier zie je de query-uitvoer. Gebruik de zoekbalk om te filteren.',
-          spot: {
-            top: outputSectionRect.top,
-            left: outputSectionRect.left,
-            width: outputSectionRect.width,
-            height: outputSectionRect.height,
-          },
-          card: placeCard(outputSectionRect),
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: outputSectionRect.top,
+                  left: outputSectionRect.left,
+                  width: outputSectionRect.width,
+                  height: outputSectionRect.height,
+                },
+                card: placeCard(outputSectionRect),
+              }),
         })
       }
       const toggleRowRect = withRect(toggleRowRef)
       if (toggleRowRect) {
-        const left = clamp(
-          toggleRowRect.left - cardWidth - cardGap,
-          padding,
-          window.innerWidth - cardWidth - padding
-        )
         nextItems.push({
           id: 'toggle-row',
           title: 'Stap 3: Toon panels',
           body:
             'Gebruik "Show query", "Show prefixes", "Show triples" en "Show log" om de panelen te openen.',
-          spot: {
-            top: toggleRowRect.top,
-            left: toggleRowRect.left,
-            width: toggleRowRect.width,
-            height: toggleRowRect.height,
-          },
-          card: { left, top: clamp(toggleRowRect.top, padding, window.innerHeight - 140) },
+          ...(compact
+            ? {}
+            : {
+                spot: {
+                  top: toggleRowRect.top,
+                  left: toggleRowRect.left,
+                  width: toggleRowRect.width,
+                  height: toggleRowRect.height,
+                },
+                card: {
+                  left: clamp(
+                    toggleRowRect.left - cardWidth - cardGap,
+                    padding,
+                    window.innerWidth - cardWidth - padding
+                  ),
+                  top: clamp(toggleRowRect.top, padding, window.innerHeight - 140),
+                },
+              }),
         })
       }
       setTutorialItems(nextItems)
@@ -1178,13 +1209,7 @@ function App() {
                   <div className="output-lock-content">
                     <div className="panel-header">
                       <h2>Output</h2>
-                <div className="panel-actions">
-                  {!outputLocked ? (
-                    <button className="ghost" type="button" onClick={() => setOutputLocked(true)}>
-                      Vergrendel output
-                    </button>
-                  ) : null}
-                </div>
+                <div className="panel-actions" />
               </div>
 
               {error ? <div className="error">Parse fout: {error}</div> : null}
@@ -1521,18 +1546,21 @@ function App() {
           </div>
         </div>
       ) : null}
-      <button
-        className="tutorial-fab"
-        type="button"
-        onClick={() => {
-          setShowTutorial(true)
-        }}
-      >
-        ?
-      </button>
+      <div className={`tutorial-fab-wrap ${showTutorial ? 'open' : ''}`}>
+        <button
+          className="tutorial-fab"
+          type="button"
+          onClick={() => {
+            setShowTutorial((prev) => !prev)
+          }}
+        >
+          ?
+        </button>
+        <span className="tutorial-fab-label">Support? Jonathan van der Gouwe</span>
+      </div>
       {showTutorial ? (
         <div
-          className="tutorial-overlay"
+          className={`tutorial-overlay ${isTutorialCompact ? 'compact' : ''}`}
           onClick={() => {
             setShowTutorial(false)
           }}
@@ -1547,27 +1575,43 @@ function App() {
           >
             Sluiten
           </button>
-          {tutorialItems.map((item) => (
-            <div key={item.id}>
-              <div
-                className="tutorial-spot"
-                style={{
-                  top: `${item.spot.top}px`,
-                  left: `${item.spot.left}px`,
-                  width: `${item.spot.width}px`,
-                  height: `${item.spot.height}px`,
-                }}
-              />
-              <div
-                className="tutorial-card"
-                style={{ top: `${item.card.top}px`, left: `${item.card.left}px` }}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <h4>{item.title}</h4>
-                <p>{item.body}</p>
-              </div>
+          {isTutorialCompact ? (
+            <div
+              className="tutorial-list"
+              onClick={(event) => {
+                event.stopPropagation()
+              }}
+            >
+              {tutorialItems.map((item) => (
+                <div key={item.id} className="tutorial-card tutorial-card-compact">
+                  <h4>{item.title}</h4>
+                  <p>{item.body}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            tutorialItems.map((item) => (
+              <div key={item.id} className="tutorial-item">
+                <div
+                  className="tutorial-spot"
+                  style={{
+                    top: `${item.spot.top}px`,
+                    left: `${item.spot.left}px`,
+                    width: `${item.spot.width}px`,
+                    height: `${item.spot.height}px`,
+                  }}
+                />
+                <div
+                  className="tutorial-card"
+                  style={{ top: `${item.card.top}px`, left: `${item.card.left}px` }}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <h4>{item.title}</h4>
+                  <p>{item.body}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       ) : null}
     </>
