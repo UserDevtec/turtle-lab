@@ -1,0 +1,37 @@
+{
+  "version": "1.1",
+  "type": "rdf_column_translations",
+  "updated": "2025-10-16",
+  "mappings": [
+    { "original": "requirement",        "translation": "EisCodeURI",                         "query": "", "description": "URI van de eis-resource" },
+    { "original": "reqNotation",        "translation": "EisCode",                            "query": "", "description": "Code/notation van de eis" },
+    { "original": "reqPrefLabel",       "translation": "Eistitel",                           "query": "", "description": "Voorkeurslabel/titel van de eis" },
+    { "original": "reqAltLabel",        "translation": "Eisomschrijving",                    "query": "", "description": "Alternatief label / korte omschrijving" },
+    { "original": "reqValue",           "translation": "Eistekst",                           "query": "", "description": "Volledige tekst/invulling van de eis" },
+    { "original": "source",             "translation": "BronURI",                            "query": "", "description": "URI van de bron" },
+    { "original": "sourceLabel",        "translation": "Bron",                               "query": "", "description": "Naam/label van de bron" },
+
+    { "original": "isDerivedFrom",      "translation": "AfgeleidVanURI",                     "query": "", "description": "URI van de eis waarvan deze eis is afgeleid" },
+    { "original": "isDerivedFromLabel", "translation": "AfgeleidVan",                        "query": "", "description": "Label van de bovenliggende eis (bron van afleiding)" },
+    { "original": "isDerivedIn",        "translation": "AfgeleidInURI",                      "query": "", "description": "URI van het document of context waarin de afleiding is vastgelegd" },
+    { "original": "isDerivedInLabel",   "translation": "AfgeleidIn",                         "query": "", "description": "Naam of label van de context waarin afleiding plaatsvond" },
+    { "original": "refersTo",           "translation": "NormURI",                            "query": "", "description": "URI van gerelateerd norm (bijv. systeem, component of eis)" },
+    { "original": "refersToLabel",      "translation": "Norm",                               "query": "", "description": "Naam of label van het gerelateerde norm waarnaar verwezen wordt" },
+    { "original": "typeObject1",        "translation": "ObjectTypeURI",                      "query": "", "description": "URI van het type object waarop de eis betrekking heeft" },
+    { "original": "typeObject1Label",   "translation": "ObjectType",                         "query": "", "description": "Naam van het objecttype waarop de eis van toepassing is" },
+    { "original": "verificationPlan",   "translation": "VerificatieplanURI",                 "query": "", "description": "URI van het verificatieplan waarin deze eis voorkomt" },
+    { "original": "subject",            "translation": "OnderwerpURI",                       "query": "", "description": "URI van het onderwerp of thema waarop de eis betrekking heeft" },
+    { "original": "subjectLabel",       "translation": "Onderwerp",                          "query": "", "description": "Naam of label van het onderwerp" },
+
+    { "original": "phase",              "translation": "FaseURI",                            "query": "", "description": "URI van de levenscyclus-/projectfase" },
+    { "original": "phaseLabel",         "translation": "Fase",                               "query": "", "description": "Naam van de fase" },
+
+    { "original": "method",             "translation": "VerificatieMethodeURI",              "query": "", "description": "URI van verificatiemethode" },
+    { "original": "methodLabel",        "translation": "VerificatieMethode",                 "query": "", "description": "Naam van verificatiemethode" },
+    { "original": "verification",       "translation": "VerificatieURI",                     "query": "", "description": "URI van het verificatie-item" },
+    { "original": "verifStatus",        "translation": "VerificatieStatus",                  "query": "", "description": "Status van verificatie" },
+    { "original": "verifDate",          "translation": "VerificatieDatum",                   "query": "", "description": "Datum van verificatie" },
+    { "original": "responsible",        "translation": "VerificatieVerantwoordelijkeURI",    "query": "", "description": "URI van verantwoordelijke" },
+    { "original": "responsibleLabel",   "translation": "VerificatieVerantwoordelijke",       "query": "", "description": "Naam van verantwoordelijke" }
+  ]
+}
