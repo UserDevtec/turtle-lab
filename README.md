@@ -5,6 +5,8 @@ RDF Turtle Lab is een webapp om Turtle (.ttl) te laden, RDF‑triples te bekijke
 
 Live demo: https://userdevtec.github.io/turtle-lab
 
+<img width="1856" height="1028" alt="image" src="https://github.com/user-attachments/assets/569f4464-2ac2-4dda-a261-88e5ea5b18e2" />
+
 ## Features
 - Upload of sleep een .ttl; parsing gebeurt automatisch.
 - Dropdown met queries uit `src/queries`, bewerkbare query‑editor met syntax highlighting.
