@@ -239,6 +239,57 @@
   justify-content: center;
 }
 
+.export-name-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(245, 243, 239, 0.78);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+}
+
+.export-name-card {
+  width: min(460px, 100%);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid #e1e4ee;
+  box-shadow: 0 20px 40px rgba(31, 39, 54, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.export-name-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.export-name-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.export-name-form input {
+  border-radius: 12px;
+  border: 1px solid #d2d6e0;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', 'Segoe UI', monospace;
+}
+
+.export-name-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
 .output-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

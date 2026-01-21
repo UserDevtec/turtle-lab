@@ -24,6 +24,15 @@ npm install
 npm run dev
 ```
 
+## Queries encrypten
+Het script `scripts/encrypt-queries.mjs` maakt altijd een nieuw `src/queries/queries.encrypted.json` en overschrijft het bestaande bestand. Gebruik dit wanneer het wachtwoord is gelekt of je opnieuw wilt encrypten.
+
+PowerShell:
+```powershell
+$env:QUERY_PASSWORD = "nieuw-wachtwoord"
+node .\scripts\encrypt-queries.mjs
+```
 ## Opmerkingen
 - Sommige queries gebruiken `$var` placeholders; deze werken als normale variabelen in de query‑editor.
 - Browser‑notificaties verschijnen na een query (toestemming vereist).
+

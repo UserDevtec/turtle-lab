@@ -59,6 +59,10 @@ function App() {
   const [outputLocked, setOutputLocked] = useState(true)
   const [passwordInput, setPasswordInput] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [exportUserName, setExportUserName] = useState('')
+  const [showExportPrompt, setShowExportPrompt] = useState(false)
+  const [exportNameInput, setExportNameInput] = useState('')
+  const [exportNameError, setExportNameError] = useState('')
   const queryTimerRef = useRef(null)
   const highlightRef = useRef(null)
   const unlockAttemptRef = useRef(0)
@@ -210,7 +214,7 @@ function App() {
     return name.replace(/[^A-Za-z0-9._-]+/g, '_')
   }
 
-  const buildExportInfo = () => {
+  const buildExportInfo = (userName) => {
     const queryFirstLine = (lastQueryText || queryText || '').split('\n')[0] || ''
     const rowCount = queryRows.length
     const colCount = queryVars.length
@@ -222,8 +226,7 @@ function App() {
     return [
       ['Sleutel', 'Waarde'],
       ['Exportdatum', new Date().toISOString().replace('T', ' ').slice(0, 19)],
-      ['Gebruiker', 'n/a'],
-      ['PC naam', 'n/a'],
+      ['Gebruiker', userName],
       ['Besturingssysteem', navigator.userAgent],
       ['TTL bestand', sourceFileName || ''],
       ['Aantal rijen', String(rowCount)],
@@ -271,7 +274,7 @@ function App() {
     }
   }
 
-  const buildOtlExportInfo = (dataHeaders, dataRows) => {
+  const buildOtlExportInfo = (userName, dataHeaders, dataRows) => {
     const nonEmptyCells = dataRows.reduce(
       (total, row) => total + row.filter((value) => String(value ?? '').trim() !== '').length,
       0
@@ -280,8 +283,7 @@ function App() {
     return [
       ['Sleutel', 'Waarde'],
       ['Exportdatum', new Date().toISOString().replace('T', ' ').slice(0, 19)],
-      ['Gebruiker', 'n/a'],
-      ['PC naam', 'n/a'],
+      ['Gebruiker', userName],
       ['Besturingssysteem', navigator.userAgent],
       ['TTL bestand', sourceFileName || ''],
       ['Aantal triples', String(triples.length)],
@@ -309,9 +311,7 @@ function App() {
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
-  const downloadExcel = () => {
-    if (!queryVars.length && !otlData) return
-    if (outputLocked) return
+  const exportExcelWithName = (userName) => {
     try {
       const workbook = XLSX.utils.book_new()
       const applyHeaderStyleAndFilter = (sheet) => {
@@ -344,13 +344,12 @@ function App() {
       }
 
       if (isOtlQuery && otlData) {
+        const exportInfoRows = buildOtlExportInfo(userName, otlData.dataHeaders, otlData.dataRows)
         const pathsSheet = XLSX.utils.aoa_to_sheet([otlData.pathsHeaders, ...otlData.pathsRows])
         const nodesSheet = XLSX.utils.aoa_to_sheet([otlData.nodesHeaders, ...otlData.nodesRows])
         const edgesSheet = XLSX.utils.aoa_to_sheet([otlData.edgesHeaders, ...otlData.edgesRows])
         const dataSheet = XLSX.utils.aoa_to_sheet([otlData.dataHeaders, ...otlData.dataRows])
-        const exportInfoSheet = XLSX.utils.aoa_to_sheet(
-          buildOtlExportInfo(otlData.dataHeaders, otlData.dataRows)
-        )
+        const exportInfoSheet = XLSX.utils.aoa_to_sheet(exportInfoRows)
         const uniquesSheet = XLSX.utils.aoa_to_sheet(
           buildUniques(otlData.dataHeaders, otlData.dataRows)
         )
@@ -366,7 +365,7 @@ function App() {
         autosizeColumns(nodesSheet, [otlData.nodesHeaders, ...otlData.nodesRows])
         autosizeColumns(edgesSheet, [otlData.edgesHeaders, ...otlData.edgesRows])
         autosizeColumns(dataSheet, [otlData.dataHeaders, ...otlData.dataRows])
-        autosizeColumns(exportInfoSheet, buildOtlExportInfo(otlData.dataHeaders, otlData.dataRows))
+        autosizeColumns(exportInfoSheet, exportInfoRows)
         autosizeColumns(uniquesSheet, buildUniques(otlData.dataHeaders, otlData.dataRows))
 
         XLSX.utils.book_append_sheet(workbook, pathsSheet, 'Paths')
@@ -378,15 +377,16 @@ function App() {
         workbook.Workbook = { Views: [{ activeTab: 4 }] }
       } else {
         const translatedHeaders = applyColumnTranslations(queryVars)
+        const exportInfoRows = buildExportInfo(userName)
         const dataSheet = XLSX.utils.aoa_to_sheet([translatedHeaders, ...queryRows])
-        const exportInfoSheet = XLSX.utils.aoa_to_sheet(buildExportInfo())
+        const exportInfoSheet = XLSX.utils.aoa_to_sheet(exportInfoRows)
         const uniquesSheet = XLSX.utils.aoa_to_sheet(buildUniques(translatedHeaders, queryRows))
 
         applyHeaderStyleAndFilter(dataSheet)
         applyHeaderStyleAndFilter(exportInfoSheet)
         applyHeaderStyleAndFilter(uniquesSheet)
         autosizeColumns(dataSheet, [translatedHeaders, ...queryRows])
-        autosizeColumns(exportInfoSheet, buildExportInfo())
+        autosizeColumns(exportInfoSheet, exportInfoRows)
         autosizeColumns(uniquesSheet, buildUniques(translatedHeaders, queryRows))
 
         XLSX.utils.book_append_sheet(workbook, dataSheet, 'Data')
@@ -404,6 +404,27 @@ function App() {
       setQueryError(`Download mislukt: ${message}`)
       addLog(`Excel export fout: ${message}`, 'error')
     }
+  }
+
+  const downloadExcel = () => {
+    if (!queryVars.length && !otlData) return
+    if (outputLocked) return
+    setExportNameInput(exportUserName)
+    setExportNameError('')
+    setShowExportPrompt(true)
+  }
+
+  const handleExportNameSubmit = (event) => {
+    event.preventDefault()
+    const userName = exportNameInput.trim()
+    if (!userName) {
+      setExportNameError('Vul je naam in.')
+      return
+    }
+    setExportUserName(userName)
+    setExportNameError('')
+    setShowExportPrompt(false)
+    exportExcelWithName(userName)
   }
 
   const downloadLog = () => {
@@ -1297,6 +1318,40 @@ function App() {
           </div>
         </section>
       </div>
+      {showExportPrompt ? (
+        <div className="export-name-overlay">
+          <div className="export-name-card">
+            <p className="stat-label">Export info</p>
+            <h3>Vul je naam in</h3>
+            <p className="meta">Deze naam wordt toegevoegd aan ExportInfo als "Gebruiker".</p>
+            <form className="export-name-form" onSubmit={handleExportNameSubmit}>
+              <input
+                type="text"
+                value={exportNameInput}
+                onChange={(event) => setExportNameInput(event.target.value)}
+                placeholder="Jouw naam"
+                autoComplete="name"
+              />
+              <div className="export-name-actions">
+                <button
+                  className="ghost"
+                  type="button"
+                  onClick={() => {
+                    setShowExportPrompt(false)
+                    setExportNameError('')
+                  }}
+                >
+                  Annuleren
+                </button>
+                <button className="primary" type="submit">
+                  Download Excel
+                </button>
+              </div>
+            </form>
+            {exportNameError ? <div className="error">{exportNameError}</div> : null}
+          </div>
+        </div>
+      ) : null}
     </>
   )
 }
