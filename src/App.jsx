@@ -1609,11 +1609,12 @@ function App() {
           </div>
         </div>
       ) : null}
-      <div className={`tutorial-fab-wrap ${showTutorial ? 'open' : ''}`}>
+      <div className={`tutorial-fab-wrap ${showTutorial && !outputLocked ? 'open' : ''}`}>
         <button
           className="tutorial-fab"
           type="button"
           onClick={() => {
+            if (outputLocked) return
             setShowTutorial((prev) => !prev)
           }}
         >
@@ -1621,7 +1622,7 @@ function App() {
         </button>
         <span className="tutorial-fab-label">Support? Jonathan van der Gouwe</span>
       </div>
-      {showTutorial ? (
+      {showTutorial && !outputLocked ? (
         <div
           className={`tutorial-overlay ${isTutorialCompact ? 'compact' : ''}`}
           onClick={() => {
