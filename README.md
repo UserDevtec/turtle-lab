@@ -21,12 +21,6 @@ Live demo: https://userdevtec.github.io/turtle-lab
 2) Kies een query of pas deze aan.
 3) Run de query en download Excel indien gewenst.
 
-## Ontwikkelen
-```bash
-npm install
-npm run dev
-```
-
 ## Queries encrypten
 Het script `scripts/encrypt-queries.mjs` maakt altijd een nieuw `src/queries/queries.encrypted.json` en overschrijft het bestaande bestand. Gebruik dit wanneer het wachtwoord is gelekt of je opnieuw wilt encrypten.
 
